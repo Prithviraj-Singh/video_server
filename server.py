@@ -10,14 +10,15 @@ sendsock = list(range(100))
 threadrec = list(range(100))
 threadcreate = list(range(100))
 rec = list(range(100))
-encoded = numpy.zeros((200,200,3))
+encoded = numpy.zeros((200, 200, 3))
 shut = list(range(100))
 count = 0
 conn = list(range(100))
 decimg = list(range(100))
 final = cv2.imread("background_for_4.png")
 
-def receive(sock,i):
+
+def receive(sock, i):
     global stop
     global shut
     global rec
@@ -26,7 +27,7 @@ def receive(sock,i):
         print("HI")
         while True:
             rec[i] = sock.recv(190456)
-            arr = numpy.fromstring(rec[i],numpy.uint8)
+            arr = numpy.fromstring(rec[i], numpy.uint8)
             decimg[i] = cv2.imdecode(arr, cv2.IMREAD_COLOR)
     except socket.timeout:
         stop = True
@@ -36,44 +37,46 @@ def receive(sock,i):
         shut[i] = True
         conn.close()
     except cv2.error:
-        receive(conn,i)
-        
+        receive(conn, i)
+
+
 def create_img(i):
     global decimg
     global final
-    while(True):
+    while (True):
         print("HI")
         try:
             if i == 0:
-                final[:300,:300] = decimg[i]
+                final[:300, :300] = decimg[i]
             if i == 1:
-                final[:300,300:600] = decimg[i]
+                final[:300, 300:600] = decimg[i]
             if i == 2:
-                final[300:600,:300] = decimg[i]
+                final[300:600, :300] = decimg[i]
             if i == 3:
-                final[300:600,300:600] = decimg[i]
-    	except cv2.error:
-        	create_img(i)
-	except TypeError:
-		pass
-        
-def send(conn,i):
+                final[300:600, 300:600] = decimg[i]
+        except cv2.error:
+            create_img(i)
+        except TypeError:
+            pass
+
+
+def send(conn, i):
     global final
     try:
-        while(True):
-            encoded = cv2.imencode(".jpg",final)[1].tobytes()
+        while (True):
+            encoded = cv2.imencode(".jpg", final)[1].tobytes()
             conn.send(encoded)
     except socket.error:
         conn.close()
 
-        
-def startsocket(count,conn):
-    vidsock[count] = socket.socket(family=socket.AF_INET,type=socket.SOCK_STREAM)
-    vidsock[count].bind((myip,0))
+
+def startsocket(count, conn):
+    vidsock[count] = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
+    vidsock[count].bind((myip, 0))
     vidsock[count].listen(1)
-    
-    sendsock[count] = socket.socket(family=socket.AF_INET,type=socket.SOCK_DGRAM)
-    sendsock[count].bind((myip,0))
+
+    sendsock[count] = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
+    sendsock[count].bind((myip, 0))
 
     conn.send(str(vidsock[count].getsockname()[1]).encode())
     print("er")
@@ -81,22 +84,24 @@ def startsocket(count,conn):
     print("er")
     conn.send(str(sendsock[count].getsockname()[1]).encode())
     print("er")
-	
-    threadrec[count] = threading.Thread(target=receive, args = (sendsock,count,))
+
+    threadrec[count] = threading.Thread(target=receive, args=(sendsock, count,))
     threadrec[count].start()
-    threadcreate[count] = threading.Thread(target=create_img, args = (count,))
+    threadcreate[count] = threading.Thread(target=create_img, args=(count,))
     threadcreate[count].start()
-    threadsnd[count] = threading.Thread(target=send, args = (vidconn,count,))
+    threadsnd[count] = threading.Thread(target=send, args=(vidconn, count,))
     threadsnd[count].start()
-    
+
+
 def forall(count):
-    sockall = socket.socket(family=socket.AF_INET,type=socket.SOCK_STREAM)
-    sockall.bind((myip,8888))
+    sockall = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
+    sockall.bind((myip, 8888))
     sockall.listen(100)
-    while(True):
-        conn[count],address = sockall.accept()
-        startsocket(count,conn[count])
+    while (True):
+        conn[count], address = sockall.accept()
+        startsocket(count, conn[count])
         count = count + 1
-				
-threadall = threading.Thread(target=forall, args = (0,))
+
+
+threadall = threading.Thread(target=forall, args=(0,))
 threadall.start()
