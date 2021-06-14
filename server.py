@@ -17,7 +17,7 @@ conn = list(range(100))
 decimg = list(range(100))
 final = cv2.imread("background_for_4.png")
 
-def receive(conn,i):
+def receive(sock,i):
     global stop
     global shut
     global rec
@@ -25,12 +25,12 @@ def receive(conn,i):
     try:
         print("HI")
         while True:
-            rec[i] = conn.recv(190456)
+            rec[i] = sock.recv(190456)
             arr = numpy.fromstring(rec[i],numpy.uint8)
             decimg[i] = cv2.imdecode(arr, cv2.IMREAD_COLOR)
     except socket.timeout:
         stop = True
-        conn.close()
+        sock.close()
     except ConnectionResetError:
         print("encountered Connection reset error")
         shut[i] = True
@@ -41,9 +41,9 @@ def receive(conn,i):
 def create_img(i):
     global decimg
     global final
-    try:
+    while(True)
         print("HI")
-        while(True):
+        try:
             if i == 0:
                 final[:300,:300] = decimg[i]
             if i == 1:
@@ -52,8 +52,10 @@ def create_img(i):
                 final[300:600,:300] = decimg[i]
             if i == 3:
                 final[300:600,300:600] = decimg[i]
-    except cv2.error:
-        create_img(i)
+    	except cv2.error:
+        	create_img(i)
+	except TypeError:
+		pass
         
 def send(conn,i):
     global final
@@ -70,18 +72,17 @@ def startsocket(count,conn):
     vidsock[count].bind((myip,0))
     vidsock[count].listen(1)
     
-    soundsock[count] = socket.socket(family=socket.AF_INET,type=socket.SOCK_STREAM)
-    soundsock[count].bind((myip,0))
-    soundsock[count].listen(1)
+    sendsock[count] = socket.socket(family=socket.AF_INET,type=socket.SOCK_DGRAM)
+    sendsock[count].bind((myip,0))
+
     conn.send(str(vidsock[count].getsockname()[1]).encode())
     print("er")
     vidconn, address = vidsock[count].accept()
     print("er")
-    conn.send(str(soundsock[count].getsockname()[1]).encode())
+    conn.send(str(sendsock[count].getsockname()[1]).encode())
     print("er")
-    soundconn,address = soundsock[count].accept()
-    print("er")
-    threadrec[count] = threading.Thread(target=receive, args = (vidconn,count,))
+	
+    threadrec[count] = threading.Thread(target=receive, args = (sendsock,count,))
     threadrec[count].start()
     threadcreate[count] = threading.Thread(target=create_img, args = (count,))
     threadcreate[count].start()
