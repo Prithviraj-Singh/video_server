@@ -41,7 +41,7 @@ def receive(sock,i):
 def create_img(i):
     global decimg
     global final
-    while(True)
+    while(True):
         print("HI")
         try:
             if i == 0:
