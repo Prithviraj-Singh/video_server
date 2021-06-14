@@ -24,7 +24,6 @@ def receive(sock, i):
     global rec
     global decimg
     try:
-        print("HI")
         while True:
             rec[i] = sock.recv(190456)
             arr = numpy.fromstring(rec[i], numpy.uint8)
@@ -44,7 +43,6 @@ def create_img(i):
     global decimg
     global final
     while (True):
-        print("HI")
         try:
             if i == 0:
                 final[:300, :300] = decimg[i]
@@ -85,7 +83,7 @@ def startsocket(count, conn):
     conn.send(str(sendsock[count].getsockname()[1]).encode())
     print("er")
 
-    threadrec[count] = threading.Thread(target=receive, args=(sendsock, count,))
+    threadrec[count] = threading.Thread(target=receive, args=(sendsock[count], count,))
     threadrec[count].start()
     threadcreate[count] = threading.Thread(target=create_img, args=(count,))
     threadcreate[count].start()
@@ -95,7 +93,7 @@ def startsocket(count, conn):
 
 def forall(count):
     sockall = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-    sockall.bind((myip, 8888))
+    sockall.bind((myip, 888))
     sockall.listen(100)
     while (True):
         conn[count], address = sockall.accept()
