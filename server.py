@@ -6,7 +6,7 @@ import threading
 myip = socket.gethostbyname(socket.gethostname())
 threadsnd = list(range(100))
 vidsock = list(range(100))
-soundsock = list(range(100))
+sendsock = list(range(100))
 threadrec = list(range(100))
 threadcreate = list(range(100))
 rec = list(range(100))
