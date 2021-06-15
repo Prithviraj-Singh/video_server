@@ -103,4 +103,5 @@ def forall(count):
         conn[count], address = sockall.accept()
         startsocket(count, conn[count])
         count = count + 1
-
+threadall = threading.Thread(target=forall, args=(0,))
+threadall.start()
