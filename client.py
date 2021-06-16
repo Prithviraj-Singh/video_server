@@ -7,7 +7,7 @@ myip = "192.168.29.109" #this ip is connected to wifi
 stop = False
 sock = socket.socket(family=socket.AF_INET,type=socket.SOCK_STREAM)
 vidsock = socket.socket(family=socket.AF_INET,type=socket.SOCK_DGRAM)
-vidsock.bind((my,0))
+vidsock.bind((myip,0))
 sendsock = socket.socket(family=socket.AF_INET,type=socket.SOCK_DGRAM)
 
 sock.connect((serverip,8888))
